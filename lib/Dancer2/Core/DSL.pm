@@ -6,7 +6,7 @@ use Moo;
 use Carp;
 use Module::Runtime 'require_module';
 use Dancer2::Core::Hook;
-use Dancer2::FileUtils;
+use Dancer2::FileUtils ();
 use Dancer2::Core::Response::Delayed;
 
 with 'Dancer2::Core::Role::DSL';
