@@ -31,7 +31,7 @@ sub path_or_empty {
     return -e $path ? $path : '';
 }
 
-sub dirname { File::Basename::dirname(@_) }
+sub dirname { return Path::Tiny::path(@_)->parent->stringify; }
 
 # Can be removed
 sub set_file_mode {
