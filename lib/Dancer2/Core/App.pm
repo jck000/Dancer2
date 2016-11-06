@@ -9,6 +9,7 @@ use Return::MultiLevel ();
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
+use Path::Tiny ();
 use Module::Runtime    'use_module';
 
 use Plack::Middleware::FixMissingBodyInRedirect;
@@ -999,8 +1000,7 @@ sub send_file {
         $err_response->(403) if !-r $file_path;
 
         # Read file content as bytes
-        $fh = Dancer2::FileUtils::open_file( "<", $file_path );
-        binmode $fh;
+        $fh = Path::Tiny::path($file_path)->openr_raw($file_path);
 
         $content_type = Dancer2::runner()->mime_type->for_file($file_path) || 'text/plain';
         if ( $content_type =~ m!^text/! ) {

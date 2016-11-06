@@ -9,7 +9,7 @@ with 'Dancer2::Core::Role::Logger';
 
 use File::Spec;
 use Fcntl qw(:flock SEEK_END);
-use Dancer2::FileUtils qw(open_file);
+use Path::Tiny ();
 use IO::File;
 
 has environment => (
@@ -71,11 +71,14 @@ sub _build_fh {
     my $self    = shift;
     my $logfile = $self->log_file;
 
-    my $fh;
-    unless ( $fh = open_file( '>>', $logfile ) ) {
-        carp "unable to create or append to $logfile";
+    my $fh = eval {
+        Path::Tiny::path($logfile)->filehandle(
+            '>>', ':encoding(UTF-8)',
+        );
+    } or do {
+        Carp::carp("unable to create or append to $logfile");
         return;
-    }
+    };
 
     $fh->autoflush;
 

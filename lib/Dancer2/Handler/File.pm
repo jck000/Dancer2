@@ -4,7 +4,7 @@ package Dancer2::Handler::File;
 use Carp 'croak';
 use Moo;
 use HTTP::Date;
-use Dancer2::FileUtils 'path', 'open_file', 'read_glob_content';
+use Dancer2::FileUtils 'path';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use File::Spec;
@@ -100,8 +100,7 @@ sub code {
         $self->execute_hook( 'handler.file.before_render', $file_path );
 
         # Read file content as bytes
-        my $fh = Path::Tiny::path($file_path)->openr_raw;
-        my $content = read_glob_content($fh);
+        my $content = Path::Tiny::path($file_path)->slurp_raw;
 
         # Assume m/^text/ mime types are correctly encoded
         my $content_type = $self->mime->for_file($file_path) || 'text/plain';
