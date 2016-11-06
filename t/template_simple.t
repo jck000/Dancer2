@@ -38,7 +38,7 @@ $expected = "one=1, two=2, three=3 - 77";
 $template = "one=<% one %>, two=<% two %>, three=<% three %> - <% hash.key %>";
 
 eval { $engine->render($template, { one => 1, two => 2, three => 3}) };
-like $@, qr/Can't open .* using mode '<'/, "prototype failure detected";
+like $@, qr/Error open.+No such file or directory/, "prototype failure detected";
 
 $result = $engine->render(\$template, {
     one => 1, two => 2, three => 3,
