@@ -100,8 +100,7 @@ sub code {
         $self->execute_hook( 'handler.file.before_render', $file_path );
 
         # Read file content as bytes
-        my $fh = open_file( "<", $file_path );
-        binmode $fh;
+        my $fh = Path::Tiny::path($file_path)->openr_raw;
         my $content = read_glob_content($fh);
 
         # Assume m/^text/ mime types are correctly encoded

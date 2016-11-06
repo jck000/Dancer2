@@ -28,10 +28,14 @@ sub BUILD {
 sub render {
     my ( $self, $template, $tokens ) = @_;
 
-    my $content =
-      ref $template eq 'SCALAR'
-      ? read_file_content($template)
-      : path($template)->slurp_utf8;
+    my $content;
+    if ( ref $template eq 'SCALAR' ) {
+        open my $fh, '<:encoding(UTF-8)', $template
+            or die "Cannot open in-memory content: $!\n";
+        $content = do { local $/; <$fh> };
+    } else {
+        $content = path($template)->slurp_utf8;
+    }
 
     $content = $self->parse_branches($content, $tokens);
 

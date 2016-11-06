@@ -6,6 +6,7 @@ use warnings;
 
 use File::Basename ();
 use File::Spec;
+use Path::Tiny ();
 use Carp;
 
 use Exporter 'import';
@@ -32,6 +33,7 @@ sub path_or_empty {
 
 sub dirname { File::Basename::dirname(@_) }
 
+# Can be removed
 sub set_file_mode {
     my $fh      = shift;
     my $charset = 'UTF-8';
@@ -42,10 +44,9 @@ sub set_file_mode {
 sub open_file {
     my ( $mode, $filename ) = @_;
 
-    open my $fh, $mode, $filename
-      or croak "Can't open '$filename' using mode '$mode': $!";
-
-    return set_file_mode($fh);
+    return Path::Tiny::path($filename)->filehandle(
+        $mode, ':encoding(UTF-8)',
+    );
 }
 
 sub read_file_content {
