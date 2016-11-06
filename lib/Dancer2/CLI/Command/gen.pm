@@ -7,6 +7,7 @@ use warnings;
 use App::Cmd::Setup -command;
 
 use HTTP::Tiny;
+use Path::Tiny ();
 use File::Find;
 use File::Path 'mkpath';
 use File::Spec::Functions;
@@ -45,12 +46,12 @@ sub validate_args {
         );
     }
 
-    my $path = $opt->{path};
-    -d $path or $self->usage_error("directory '$path' does not exist");
+    my $path = Path::Tiny::path( $opt->{path} );
+    $path->is_dir or $self->usage_error("directory '$path' does not exist");
     -w $path or $self->usage_error("directory '$path' is not writeable");
 
     if ( my $skel_path = $opt->{skel} ) {
-        -d $skel_path
+        $skel_path->is_dir
             or $self->usage_error("skeleton directory '$skel_path' not found");
     }
 }
@@ -60,8 +61,14 @@ sub execute {
     $self->_version_check() unless $opt->{'no_check'};
 
     my $dist_dir = dist_dir('Dancer2');
-    my $skel_dir = $opt->{skel} || catdir($dist_dir, 'skel');
-    -d $skel_dir or die "$skel_dir doesn't exist";
+
+    my @dirs =
+      $opt->{'skel'}
+      ? ($opt->{'skel'})
+      : ($dist_dir, 'skel');
+
+    my $skel_dir = Path::Tiny::path(@dirs);
+    $skel_dir->is_dir or die "$skel_dir doesn't exist";
 
     my $app_name = $opt->{application};
     my $app_file = _get_app_file($app_name);
@@ -151,8 +158,8 @@ sub _copy_templates {
             next unless ($res eq 'y') or ($res eq 'a');
         }
 
-        my $to_dir = dirname($to);
-        if (! -d $to_dir) {
+        my $to_dir = Path::Tiny::path($to)->parent;
+        if (! $to_dir->is_dir ) {
             print "+ $to_dir\n";
             mkpath $to_dir or die "could not mkpath $to_dir: $!";
         }
